@@ -33,7 +33,7 @@ O problema NÃO é:
 O problema É:
 - ⚠️  NAT Reflection NÃO habilitado no port forward ID 20
 - ⚠️  Acesso EXTERNO pode estar sendo bloqueado por falta de NAT Reflection
-- ⚠️  O teste está sendo feito do mesmo IP (95.216.14.162) que pode ter regras especiais
+- ⚠️  O teste está sendo feito do mesmo IP (95.216.14.146) que pode ter regras especiais
 
 ═══════════════════════════════════════════════════════════════════════════
 POR QUE OUTROS APPS FUNCIONAM?
@@ -53,7 +53,7 @@ Possíveis razões:
    → Não usam WAN, então não precisam de NAT Reflection
 
 4. O teste está sendo feito do mesmo IP
-   → Pode haver regras especiais para o IP 95.216.14.162
+   → Pode haver regras especiais para o IP 95.216.14.146
    → Acesso externo de outros IPs pode funcionar
 
 ═══════════════════════════════════════════════════════════════════════════

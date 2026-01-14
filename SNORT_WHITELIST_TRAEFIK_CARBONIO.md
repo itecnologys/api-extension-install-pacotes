@@ -176,7 +176,7 @@ Após configurar, os seguintes IPs/ranges estarão na whitelist:
 ### Ranges Existentes:
 - `51.171.219.218/20` - IP local Cursor/IDE
 - `95.216.14.0/24` - Range Hetzner
-- `95.216.14.162/32` - IP específico Hetzner
+- `95.216.14.146/32` - IP específico Hetzner
 - `95.216.14.146/32` - IP específico Hetzner
 - 15 ranges da Cloudflare
 

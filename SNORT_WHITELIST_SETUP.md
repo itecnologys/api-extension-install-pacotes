@@ -5,7 +5,7 @@
 - **Alias criado via API**: `SNORT_TRUSTED_IPS` ✅
 - **IPs configurados**: 19 ranges/IPs incluindo:
   - IP local Cursor/IDE: `51.171.219.218/20`
-  - IPs Hetzner: `95.216.14.0/24`, `95.216.14.162`, `95.216.14.146`
+  - IPs Hetzner: `95.216.14.0/24`, `95.216.14.146`, `95.216.14.146`
   - Ranges Cloudflare: 15 ranges principais
 
 ## 📋 Passo a Passo - Configuração Manual
@@ -22,7 +22,7 @@
 ```
 51.171.219.218/20          # IP local Cursor/IDE
 95.216.14.0/24             # Range Hetzner
-95.216.14.162/32           # IP específico Hetzner
+95.216.14.146/32           # IP específico Hetzner
 95.216.14.146/32           # IP específico Hetzner
 173.245.48.0/20            # Cloudflare
 103.21.244.0/22            # Cloudflare
