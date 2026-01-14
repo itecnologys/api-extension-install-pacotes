@@ -1,0 +1,119 @@
+═══════════════════════════════════════════════════════════════════════════
+ANÁLISE COMPLETA: POR QUE OUTROS APPS FUNCIONAM E ESTE NÃO?
+═══════════════════════════════════════════════════════════════════════════
+
+✅ DESCOBERTA IMPORTANTE:
+───────────────────────────────────────────────────────────────────────────
+
+Se outros apps funcionam na porta 443, significa que:
+1. ✅ O port forward ID 20 está FUNCIONANDO
+2. ✅ O Traefik está recebendo tráfego
+3. ✅ O Traefik está roteando corretamente
+4. ✅ O Carbonio está respondendo
+
+═══════════════════════════════════════════════════════════════════════════
+TESTES REALIZADOS
+═══════════════════════════════════════════════════════════════════════════
+
+✅ Traefik está escutando na porta 9055
+✅ Traefik responde (HTTP 404 sem Host, HTTP 307 com Host)
+✅ Traefik roteia para mail.ligbox.com.br (HTTP 307 - redirecionamento)
+✅ Carbonio responde diretamente (HTTP 307)
+
+═══════════════════════════════════════════════════════════════════════════
+PROBLEMA IDENTIFICADO
+═══════════════════════════════════════════════════════════════════════════
+
+O problema NÃO é:
+- ❌ Port forward (está funcionando para outros apps)
+- ❌ Traefik não escutando (está escutando)
+- ❌ Traefik não roteando (está roteando internamente)
+- ❌ Carbonio não respondendo (está respondendo)
+
+O problema É:
+- ⚠️  NAT Reflection NÃO habilitado no port forward ID 20
+- ⚠️  Acesso EXTERNO pode estar sendo bloqueado por falta de NAT Reflection
+- ⚠️  O teste está sendo feito do mesmo IP (95.216.14.162) que pode ter regras especiais
+
+═══════════════════════════════════════════════════════════════════════════
+POR QUE OUTROS APPS FUNCIONAM?
+═══════════════════════════════════════════════════════════════════════════
+
+Possíveis razões:
+
+1. Outros apps usam o mesmo port forward ID 20
+   → Eles funcionam porque o Traefik está roteando corretamente
+   → O problema é específico para acesso EXTERNO ao mail.ligbox.com.br
+
+2. Outros apps têm NAT Reflection habilitado
+   → Se eles têm port forwards separados com NAT Reflection
+   → Eles funcionam tanto interno quanto externo
+
+3. Outros apps estão em interfaces diferentes
+   → Não usam WAN, então não precisam de NAT Reflection
+
+4. O teste está sendo feito do mesmo IP
+   → Pode haver regras especiais para o IP 95.216.14.162
+   → Acesso externo de outros IPs pode funcionar
+
+═══════════════════════════════════════════════════════════════════════════
+SOLUÇÃO
+═══════════════════════════════════════════════════════════════════════════
+
+AÇÃO NECESSÁRIA: Habilitar NAT Reflection no port forward ID 20
+───────────────────────────────────────────────────────────────────────────
+
+1. Acesse: https://firewall.itecnologys.com
+2. Vá em: Firewall > NAT > Port Forward
+3. Encontre: ID 20 - "Traefik Dashboard - proxy.itecnologys.com"
+4. Clique em: Edit (ícone de lápis)
+5. Na seção: "NAT Reflection"
+6. Selecione: "Enable (Pure NAT)"
+7. Clique em: Save
+8. Clique em: Apply Changes
+
+ALTERNATIVA: Desabilitar ID 20 e usar ID 30
+───────────────────────────────────────────────────────────────────────────
+
+O ID 30 já tem NAT Reflection habilitado!
+
+1. Acesse: https://firewall.itecnologys.com
+2. Vá em: Firewall > NAT > Port Forward
+3. Encontre: ID 20
+4. Clique em: Edit
+5. Marque: "Disabled"
+6. Save → Apply Changes
+7. Agora o ID 30 será usado (tem NAT Reflection)
+
+═══════════════════════════════════════════════════════════════════════════
+TESTE APÓS CORREÇÃO
+═══════════════════════════════════════════════════════════════════════════
+
+Após habilitar NAT Reflection:
+
+1. Teste interno (deve continuar funcionando):
+   curl -k https://10.10.10.105:9055 -H "Host: mail.ligbox.com.br"
+
+2. Teste externo (deve começar a funcionar):
+   bash /root/test_port_443.sh
+
+3. Teste acesso web:
+   https://mail.ligbox.com.br (deve abrir o webmail)
+
+═══════════════════════════════════════════════════════════════════════════
+RESUMO
+═══════════════════════════════════════════════════════════════════════════
+
+✅ Port forward está funcionando (outros apps funcionam)
+✅ Traefik está funcionando (rota corretamente)
+✅ Carbonio está funcionando (responde)
+❌ NAT Reflection não habilitado (bloqueia acesso externo)
+
+SOLUÇÃO: Habilitar NAT Reflection no port forward ID 20
+TEMPO ESTIMADO: 2 minutos
+
+═══════════════════════════════════════════════════════════════════════════
+Data: 2025-01-14
+Autor: Auto Assistant - itecnologys.com
+═══════════════════════════════════════════════════════════════════════════
+
