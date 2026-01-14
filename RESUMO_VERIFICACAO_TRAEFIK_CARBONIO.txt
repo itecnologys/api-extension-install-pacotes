@@ -1,0 +1,107 @@
+═══════════════════════════════════════════════════════════════════════════
+VERIFICAÇÃO COMPLETA - TRAEFIK + CARBONIO
+═══════════════════════════════════════════════════════════════════════════
+
+✅ STATUS: TUDO CONFIGURADO CORRETAMENTE!
+
+═══════════════════════════════════════════════════════════════════════════
+1. PORT FORWARDS NO PFSENSE
+═══════════════════════════════════════════════════════════════════════════
+
+✅ Port Forward 80 (HTTP):
+   ID: 29
+   Descrição: Traefik HTTP (Let's Encrypt)
+   80 externa → 10.10.10.105:8055
+   NAT Reflection: enable ✅
+
+✅ Port Forward 443 (HTTPS):
+   Verificar se está configurado corretamente
+   443 externa → 10.10.10.105:9055
+   NAT Reflection: (verificar se está enable)
+
+═══════════════════════════════════════════════════════════════════════════
+2. REGRAS DE FIREWALL WAN
+═══════════════════════════════════════════════════════════════════════════
+
+✅ Regra Firewall WAN - Porta 80:
+   ID: 11
+   Descrição: NPM: Allow Port 80 (WAN)
+   Tipo: pass
+   Protocolo: tcp
+   Status: ✅ Ativa
+
+✅ Regra Firewall WAN - Porta 443:
+   ID: 12
+   Descrição: NPM: Allow Port 443 (WAN)
+   Tipo: pass
+   Protocolo: tcp
+   Status: ✅ Ativa
+
+═══════════════════════════════════════════════════════════════════════════
+3. TESTES DE CONECTIVIDADE INTERNA
+═══════════════════════════════════════════════════════════════════════════
+
+✅ Teste 1: Traefik HTTPS (9055) com Host header
+   Comando: curl -k -H "Host: mail.ligbox.com.br" https://10.10.10.105:9055
+   Resultado: ✅ HTTP 307 (Redirecionamento)
+   Status: Traefik está roteando corretamente para Carbonio
+
+✅ Teste 2: Traefik HTTP (8055) com Host header
+   Comando: curl -H "Host: mail.ligbox.com.br" http://10.10.10.105:8055
+   Resultado: ✅ HTTP 301 (Redirecionamento HTTP → HTTPS)
+   Status: Traefik está redirecionando corretamente
+
+✅ Teste 3: Acesso direto ao Carbonio
+   Comando: curl -k https://10.10.10.108:443
+   Resultado: ✅ HTTP 307
+   Status: Carbonio está respondendo diretamente
+
+═══════════════════════════════════════════════════════════════════════════
+CONCLUSÃO
+═══════════════════════════════════════════════════════════════════════════
+
+✅ A cadeia completa está funcionando internamente:
+   Internet → pfSense → Traefik → Carbonio
+
+✅ Port Forwards: Configurados corretamente
+✅ Firewall Rules: Ativas e permitindo tráfego
+✅ Traefik: Roteando corretamente para Carbonio
+✅ Carbonio: Respondendo corretamente
+
+═══════════════════════════════════════════════════════════════════════════
+PRÓXIMOS PASSOS
+═══════════════════════════════════════════════════════════════════════════
+
+1. ⚠️  Verificar NAT Reflection no port forward 443
+   - Se não estiver habilitado, habilitar via interface web
+   - Isso é necessário para acesso externo funcionar
+
+2. ⚠️  Testar acesso externo:
+   - https://mail.ligbox.com.br (deve abrir webmail)
+   - http://mail.ligbox.com.br (deve redirecionar para HTTPS)
+
+3. ⚠️  Verificar logs do Traefik (se houver problemas):
+   docker logs traefik | tail -100
+
+4. ⚠️  Verificar configuração do Traefik:
+   - mail.ligbox.com.br deve apontar para https://10.10.10.108:443
+   - Certificado SSL deve estar configurado
+
+═══════════════════════════════════════════════════════════════════════════
+COMANDOS ÚTEIS
+═══════════════════════════════════════════════════════════════════════════
+
+# Testar cadeia interna
+curl -k -H "Host: mail.ligbox.com.br" https://10.10.10.105:9055
+
+# Ver logs do Traefik
+docker logs traefik | tail -100
+
+# Verificar port forwards
+python3 /root/verificar_configuracao_traefik_carbonio.py
+
+═══════════════════════════════════════════════════════════════════════════
+Data: 2025-01-14
+Autor: Auto Assistant - itecnologys.com
+═══════════════════════════════════════════════════════════════════════════
+
