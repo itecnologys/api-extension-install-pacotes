@@ -1,0 +1,152 @@
+═══════════════════════════════════════════════════════════════════════════
+DIAGNÓSTICO: PORTA 443 FECHADA PARA 95.216.14.162
+═══════════════════════════════════════════════════════════════════════════
+
+✅ VALIDAÇÃO CONCLUÍDA: Porta 443 está FECHADA
+
+═══════════════════════════════════════════════════════════════════════════
+CONFIGURAÇÃO ATUAL NO PFSENSE
+═══════════════════════════════════════════════════════════════════════════
+
+✅ Port Forwards WAN 443:
+   - ID 20: Traefik Dashboard → 10.10.10.105:9055 (PRIMEIRO - será usado)
+   - ID 30: Traefik HTTPS → 10.10.10.105:9055
+
+✅ Regras Firewall WAN 443:
+   - ID 12: NPM: Allow Port 443 (WAN)
+   - ID 52: Carbonio Direct Access 443
+
+✅ Nenhuma regra bloqueante encontrada
+
+═══════════════════════════════════════════════════════════════════════════
+POSSÍVEIS CAUSAS
+═══════════════════════════════════════════════════════════════════════════
+
+1. 🔍 Traefik não está escutando na porta 9055
+   → Verificar: docker ps | grep traefik
+   → Verificar: netstat -tlnp | grep 9055
+   → Verificar logs: docker logs traefik | tail -50
+
+2. 🔍 Firewall da Hetzner bloqueando
+   → A Hetzner pode ter firewall externo bloqueando portas
+   → Verificar no painel da Hetzner: Firewall > Rules
+   → Permitir portas 80 e 443 de entrada
+
+3. 🔍 Port forward não está funcionando corretamente
+   → Mesmo configurado, pode haver problema de ordem
+   → O pfSense usa o PRIMEIRO port forward que corresponde
+   → ID 20 está primeiro, mas pode não estar funcionando
+
+4. 🔍 Problema de roteamento interno
+   → Verificar se 10.10.10.105 está acessível do pfSense
+   → Testar: ping 10.10.10.105 (do pfSense)
+
+5. 🔍 NAT Reflection não configurado
+   → ID 20 não tem NAT Reflection habilitado
+   → ID 30 tem NAT Reflection habilitado
+   → Mas ID 20 é usado primeiro!
+
+═══════════════════════════════════════════════════════════════════════════
+VERIFICAÇÕES RECOMENDADAS
+═══════════════════════════════════════════════════════════════════════════
+
+1. Verificar Traefik (na VM 105):
+   ───────────────────────────────────────────────────────────────────────
+   # Verificar se está rodando
+   docker ps | grep traefik
+   
+   # Verificar se está escutando na porta 9055
+   netstat -tlnp | grep 9055
+   # OU
+   ss -tlnp | grep 9055
+   
+   # Verificar logs
+   docker logs traefik | tail -100
+   
+   # Testar acesso interno
+   curl -k https://10.10.10.105:9055 -H "Host: mail.ligbox.com.br"
+
+2. Verificar Firewall Hetzner:
+   ───────────────────────────────────────────────────────────────────────
+   - Acesse o painel da Hetzner
+   - Vá em: Firewall > Rules
+   - Verifique se há regras bloqueando portas 80/443
+   - Crie regras permitindo se necessário:
+     * Porta 80: TCP, Inbound, Allow
+     * Porta 443: TCP, Inbound, Allow
+
+3. Verificar Port Forward no pfSense:
+   ───────────────────────────────────────────────────────────────────────
+   - Acesse: https://firewall.itecnologys.com
+   - Vá em: Firewall > NAT > Port Forward
+   - Verifique se ID 20 está ativo (não desabilitado)
+   - Verifique se aponta para 10.10.10.105:9055
+   - Considere desabilitar ID 20 e usar apenas ID 30
+
+4. Testar acesso interno:
+   ───────────────────────────────────────────────────────────────────────
+   # Do pfSense ou qualquer VM interna
+   curl -k https://10.10.10.105:9055 -H "Host: mail.ligbox.com.br"
+   
+   # Se funcionar internamente, o problema é externo (Hetzner firewall)
+
+═══════════════════════════════════════════════════════════════════════════
+SOLUÇÕES SUGERIDAS
+═══════════════════════════════════════════════════════════════════════════
+
+SOLUÇÃO 1: Habilitar NAT Reflection no port forward ID 20
+───────────────────────────────────────────────────────────────────────────
+O port forward ID 20 não tem NAT Reflection habilitado.
+Isso pode causar problemas de acesso externo.
+
+Ação: Editar port forward ID 20 e habilitar NAT Reflection
+
+SOLUÇÃO 2: Desabilitar ID 20 e usar apenas ID 30
+───────────────────────────────────────────────────────────────────────────
+O ID 30 tem NAT Reflection habilitado e está configurado corretamente.
+Se desabilitarmos o ID 20, o ID 30 será usado.
+
+Ação: Desabilitar port forward ID 20 no pfSense
+
+SOLUÇÃO 3: Verificar Firewall Hetzner
+───────────────────────────────────────────────────────────────────────────
+A Hetzner pode ter firewall externo bloqueando.
+Verifique no painel e permita portas 80/443.
+
+Ação: Configurar firewall no painel da Hetzner
+
+SOLUÇÃO 4: Verificar Traefik
+───────────────────────────────────────────────────────────────────────────
+O Traefik pode não estar escutando corretamente.
+Verifique se o container está rodando e escutando na porta 9055.
+
+Ação: Verificar status do Traefik na VM 105
+
+═══════════════════════════════════════════════════════════════════════════
+ARQUIVOS CRIADOS
+═══════════════════════════════════════════════════════════════════════════
+
+/root/test_port_443.sh
+   - Script para testar se porta 443 está aberta
+
+/root/fix_port_443_issue.py
+   - Script para diagnosticar e tentar corrigir
+
+/root/RESUMO_PORTA_443_FECHADA.txt
+   - Este arquivo (resumo do diagnóstico)
+
+═══════════════════════════════════════════════════════════════════════════
+PRÓXIMOS PASSOS
+═══════════════════════════════════════════════════════════════════════════
+
+1. ⚠️  Verificar Traefik na VM 105 (docker ps, netstat, logs)
+2. ⚠️  Verificar Firewall Hetzner (painel)
+3. ⚠️  Habilitar NAT Reflection no port forward ID 20
+4. ⚠️  OU desabilitar ID 20 e usar apenas ID 30
+5. ⚠️  Testar novamente: bash /root/test_port_443.sh
+
+═══════════════════════════════════════════════════════════════════════════
+Data: 2025-01-14
+Autor: Auto Assistant - itecnologys.com
+═══════════════════════════════════════════════════════════════════════════
+
