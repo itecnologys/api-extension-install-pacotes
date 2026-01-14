@@ -1,0 +1,57 @@
+═══════════════════════════════════════════════════════════════════════════
+NAT REFLECTION HABILITADO VIA API
+═══════════════════════════════════════════════════════════════════════════
+
+✅ SUCESSO! NAT Reflection foi habilitado no port forward 443!
+
+═══════════════════════════════════════════════════════════════════════════
+DETALHES DA OPERAÇÃO
+═══════════════════════════════════════════════════════════════════════════
+
+Port Forward: ID 20
+Descrição: Traefik Dashboard - proxy.itecnologys.com
+Porta: 443
+Target: 10.10.10.105:9055
+NAT Reflection: enable ✅ (HABILITADO)
+
+Método usado: PATCH (API do pfSense)
+Status: ✅ Aplicado com sucesso
+
+═══════════════════════════════════════════════════════════════════════════
+O QUE FOI FEITO
+═══════════════════════════════════════════════════════════════════════════
+
+1. ✅ Obtido port forward ID 20 via API
+2. ✅ Atualizado NAT Reflection para "enable" via PATCH
+3. ✅ Aplicadas mudanças no firewall
+4. ✅ Verificado que NAT Reflection está habilitado
+
+═══════════════════════════════════════════════════════════════════════════
+PRÓXIMOS PASSOS
+═══════════════════════════════════════════════════════════════════════════
+
+1. Teste acesso externo:
+   https://mail.ligbox.com.br
+   (Deve abrir o webmail agora!)
+
+2. Teste porta externa:
+   bash /root/test_port_443.sh
+   (Porta 443 deve estar aberta agora!)
+
+3. Verifique logs se houver problemas:
+   - Traefik: docker logs traefik | tail -100
+   - Carbonio: tail -50 /opt/zextras/log/nginx.log
+
+═══════════════════════════════════════════════════════════════════════════
+NOTA IMPORTANTE
+═══════════════════════════════════════════════════════════════════════════
+
+A API do pfSense aceita PATCH (não PUT) para atualizar port forwards.
+O script /root/enable_nat_reflection_api.py pode ser usado novamente
+se necessário.
+
+═══════════════════════════════════════════════════════════════════════════
+Data: 2025-01-14
+Autor: Auto Assistant - itecnologys.com
+═══════════════════════════════════════════════════════════════════════════
+
